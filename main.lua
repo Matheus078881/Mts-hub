@@ -6,7 +6,7 @@ local HttpService = game:GetService("HttpService")
 -- ==========================================
 -- CONFIGURAÇÕES (WEBHOOK E KEYS)
 -- ==========================================
-local Discord_Webhook = "https://discord.com/api/webhooks/1475231703873093836/lwObHISJaDHcFVwXzFee8qkYYtWhDCyg_OpwR29_Ne2MgpTpbZK220srtbDMgxtuI5JE" -- COLA O TEU LINK DO DISCORD AQUI!
+local Discord_Webhook = "https://discord.com/api/webhooks/1475231703873093836/lwObHISJaDHcFVwXzFee8qkYYtWhDCyg_OpwR29_Ne2MgpTpbZK220srtbDMgxtuI5JE"
 
 local KeysAtivas = {
     ["MATHEUS-ADMIN-2026"] = {expira = {dia=30, mes=12, year=2026}, dono = "Matheus (Dono)"},
@@ -15,10 +15,9 @@ local KeysAtivas = {
 -- ==========================================
 
 local function EnviarAoDiscord(mensagem)
-    if Discord_Webhook == "https://discord.com/api/webhooks/1475231703873093836/lwObHISJaDHcFVwXzFee8qkYYtWhDCyg_OpwR29_Ne2MgpTpbZK220srtbDMgxtuI5JE" then return end
+    if Discord_Webhook == "" then return end
     local data = { ["content"] = mensagem }
     local payload = HttpService:JSONEncode(data)
-    -- Nota: Alguns executores precisam de request ou http_request
     local request = syn and syn.request or http_request or request or (http and http.request)
     if request then
         request({ Url = Discord_Webhook, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = payload })
@@ -65,26 +64,26 @@ LoginTab:AddButton({
                 Callback = function(V) BrainrotAtivo = V end
             })
 
-            -- Loop que verifica o valor (Exemplo: monitorando uma Leaderstat ou Variável)
             task.spawn(function()
                 while true do
                     if BrainrotAtivo then
-                        -- Aqui simulamos a verificação. Na prática, podes ligar ao valor real do jogo:
-                        local valorAtual = 11 -- Exemplo: game.Players.LocalPlayer.leaderstats.Brainrot.Value
-                        
-                        if valorAtual >= 10 then
-                            local msgLink = "🚨 **ALVO DETECTADO!**\nJogador: " .. game.Players.LocalPlayer.Name .. "\nBrainrot: " .. valorAtual .. "M/s\nJobId: " .. game.JobId
-                            EnviarAoDiscord(msgLink)
-                            Fluent:Notify({ Title = "Notificação Enviada", Content = "Alvo enviado para o Discord!", Duration = 5 })
-                            task.wait(60) -- Espera 1 minuto para não encher o Discord de spam
-                        end
+                        local msgLink = "🚨 **MT'S HUB DETECTOU ALVO!**\n👤 Jogador: " .. game.Players.LocalPlayer.Name .. "\n📊 Status: Brainrot > 10M/s Detectado!\n🆔 JobId: " .. game.JobId .. "\n🎮 Jogo Link: https://www.roblox.com/games/" .. game.PlaceId
+                        EnviarAoDiscord(msgLink)
+                        Fluent:Notify({ Title = "Discord", Content = "Alvo enviado para o seu servidor!", Duration = 5 })
+                        task.wait(60) -- Evita Spam no seu canal
                     end
                     task.wait(5)
                 end
             end)
 
-            -- [[ FUNÇÕES DE MOVIMENTO ]] --
+            -- [[ MOVIMENTAÇÃO ]] --
             TabMov:AddSlider("Speed", { Title = "Velocidade", Default = 16, Min = 16, Max = 300, Callback = function(V) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = V end })
+            
+            local InfJump = false
+            TabMov:AddToggle("InfJump", {Title = "Pulo Infinito", Default = false, Callback = function(V) InfJump = V end})
+            game:GetService("UserInputService").JumpRequest:Connect(function()
+                if InfJump then game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping") end
+            end)
 
             Fluent:Notify({ Title = "mt's hub v1.6", Content = "Sistema de Rastreio Ativo!", Duration = 3 })
         else
