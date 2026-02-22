@@ -6,8 +6,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 -- GESTÃO DE CLIENTES (O TEU PAINEL DE CONTROLO)
 -- ==========================================
 local KeysAtivas = {
-    ["MATHEUS-ADMIN-2026"] = {expira = {dia=30, mes=12, ano=2026}, dono = "Matheus (Dono)"},
-    ["KEY-CLIENTE-77"] = {expira = {dia=01, mes=04, ano=2026}, dono = "Utilizador VIP"},
+    ["MATHEUS-ADMIN-2026"] = {expira = {dia=30, mes=12, ano=2026}, dono = "Matheus (Dono)"}
 }
 -- ==========================================
 
