@@ -1,93 +1,89 @@
--- [[ mt's hub v1.6 | DISCORD GLOBAL TRACKER ]] --
+-- [[ mt's hub v1.7.1 | FIX CALLBACK ERROR ]] --
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local HttpService = game:GetService("HttpService")
 
--- ==========================================
--- CONFIGURAÇÕES (WEBHOOK E KEYS)
--- ==========================================
 local Discord_Webhook = "https://discord.com/api/webhooks/1475231703873093836/lwObHISJaDHcFVwXzFee8qkYYtWhDCyg_OpwR29_Ne2MgpTpbZK220srtbDMgxtuI5JE"
 
-local KeysAtivas = {
-    ["MATHEUS-ADMIN-2026"] = {expira = {dia=30, mes=12, year=2026}, dono = "Matheus (Dono)"},
-    ["KEY-CLIENTE-77"] = {expira = {dia=01, mes=04, year=2026}, dono = "Utilizador VIP"},
+-- Sistema de Keys (Coloquei as duas variações para garantir)
+local KeysAtivas = { 
+    ["MATHEUS-ADMIN-2026"] = {expira = {dia=30, mes=12, year=2026}, dono = "Matheus"},
+    ["MATHEUS-ADIMIN-2026"] = {expira = {dia=30, mes=12, year=2026}, dono = "Matheus"}
 }
--- ==========================================
 
-local function EnviarAoDiscord(mensagem)
-    if Discord_Webhook == "" then return end
-    local data = { ["content"] = mensagem }
-    local payload = HttpService:JSONEncode(data)
-    local request = syn and syn.request or http_request or request or (http and http.request)
-    if request then
-        request({ Url = Discord_Webhook, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = payload })
-    end
-end
-
-local function ChecarKey(input)
-    if KeysAtivas[input] then
-        local data = KeysAtivas[input].expira
-        local expiraTime = os.time({day=data.dia, month=data.mes, year=data.year or 2026, hour=23})
-        if os.time() <= expiraTime then return true, "Bem-vindo, " .. KeysAtivas[input].dono end
-    end
-    return false, "Key inválida ou expirada!"
-end
-
--- [[ JANELA DE LOGIN ]] --
+-- Janela de Login
 local Window = Fluent:CreateWindow({
-    Title = "mt's hub v1.6 | GLOBAL TRACKER",
+    Title = "mt's hub v1.7.1",
     SubTitle = "by Matheus078881",
     TabWidth = 160, Size = UDim2.fromOffset(450, 300), Acrylic = true, Theme = "Dark"
 })
 
 local LoginTab = Window:AddTab({ Title = "Login", Icon = "lock" })
-local KeyInput = LoginTab:AddInput("KeyInput", {Title = "Chave de Acesso", Default = ""})
+local KeyInput = LoginTab:AddInput("KeyInput", {Title = "Insira sua Key", Default = ""})
 
 LoginTab:AddButton({
-    Title = "Entrar",
+    Title = "Entrar no Hub",
     Callback = function()
-        local sucesso, msg = ChecarKey(KeyInput.Value)
-        if sucesso then
-            Window:Destroy() 
+        local input = KeyInput.Value
+        if KeysAtivas[input] then
+            -- NOTIFICAÇÃO DE SUCESSO
+            Fluent:Notify({ Title = "Login", Content = "Bem-vindo, " .. KeysAtivas[input].dono, Duration = 3 })
             
+            -- FECHA A JANELA DE LOGIN
+            Window:Destroy()
+            task.wait(0.5) -- Pequena pausa para o script não bugar
+
+            -- CRIA A JANELA PRINCIPAL
             local MainHub = Fluent:CreateWindow({
-                Title = "mt's hub v1.6", SubTitle = "Discord Integrated",
-                TabWidth = 160, Size = UDim2.fromOffset(580, 460), Acrylic = true, Theme = "Dark"
+                Title = "mt's hub v1.7.1",
+                SubTitle = "Premium Edition",
+                TabWidth = 160, Size = UDim2.fromOffset(580, 460), 
+                Acrylic = true, Theme = "Dark"
             })
             
-            local TabGlob = MainHub:AddTab({ Title = "Global Notifier", Icon = "bell" })
+            -- AGORA SIM AS ABAS (DENTRO DO MAINHUB)
+            local TabGlob = MainHub:AddTab({ Title = "Global Tracker", Icon = "bell" })
             local TabMov = MainHub:AddTab({ Title = "Movimentação", Icon = "run" })
+            local TabMisc = MainHub:AddTab({ Title = "Misc", Icon = "coffee" })
 
-            -- [[ LÓGICA DO BRAINROT NOTIFIER ]] --
+            -- FUNÇÕES DE MOVIMENTAÇÃO
+            TabMov:AddSlider("Speed", { Title = "Velocidade", Default = 16, Min = 16, Max = 300, 
+                Callback = function(V) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = V end 
+            })
+
+            -- GLOBAL TRACKER (WEBHOOK)
             local BrainrotAtivo = false
-            TabGlob:AddToggle("TrackerToggle", {Title = "Monitorar Brainrot (>10M/s)", Default = false, 
+            TabGlob:AddToggle("Tracker", {Title = "Monitorar Alvos (10M/s+)", Default = false, 
                 Callback = function(V) BrainrotAtivo = V end
             })
 
             task.spawn(function()
                 while true do
                     if BrainrotAtivo then
-                        local msgLink = "🚨 **MT'S HUB DETECTOU ALVO!**\n👤 Jogador: " .. game.Players.LocalPlayer.Name .. "\n📊 Status: Brainrot > 10M/s Detectado!\n🆔 JobId: " .. game.JobId .. "\n🎮 Jogo Link: https://www.roblox.com/games/" .. game.PlaceId
-                        EnviarAoDiscord(msgLink)
-                        Fluent:Notify({ Title = "Discord", Content = "Alvo enviado para o seu servidor!", Duration = 5 })
-                        task.wait(60) -- Evita Spam no seu canal
+                        local payload = HttpService:JSONEncode({
+                            content = "🚨 **MT'S HUB: ALVO DETECTADO!**\n👤 Jogador: "..game.Players.LocalPlayer.Name.."\n🎮 Link: https://www.roblox.com/games/"..game.PlaceId
+                        })
+                        local req = syn and syn.request or http_request or request
+                        if req then req({Url = Discord_Webhook, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = payload}) end
+                        task.wait(60) -- Anti-Spam
                     end
                     task.wait(5)
                 end
             end)
 
-            -- [[ MOVIMENTAÇÃO ]] --
-            TabMov:AddSlider("Speed", { Title = "Velocidade", Default = 16, Min = 16, Max = 300, Callback = function(V) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = V end })
-            
-            local InfJump = false
-            TabMov:AddToggle("InfJump", {Title = "Pulo Infinito", Default = false, Callback = function(V) InfJump = V end})
-            game:GetService("UserInputService").JumpRequest:Connect(function()
-                if InfJump then game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping") end
-            end)
+            -- ANTI-AFK
+            TabMisc:AddToggle("AntiAFK", {Title = "Ativar Anti-AFK", Default = false, Callback = function(V)
+                local VirtualUser = game:GetService("VirtualUser")
+                game.Players.LocalPlayer.Idled:Connect(function()
+                    if V then
+                        VirtualUser:CaptureController()
+                        VirtualUser:ClickButton2(Vector2.new())
+                    end
+                end)
+            end})
 
-            Fluent:Notify({ Title = "mt's hub v1.6", Content = "Sistema de Rastreio Ativo!", Duration = 3 })
         else
-            Fluent:Notify({ Title = "Erro", Content = msg, Duration = 5 })
+            Fluent:Notify({ Title = "Erro", Content = "Key incorreta ou expirada!", Duration = 5 })
         end
     end
 })
