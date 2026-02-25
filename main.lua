@@ -1,81 +1,72 @@
--- [[ mt's hub v2.0 | ORION EDITION - ESTABILIDADE TOTAL ]] --
+-- [[ mt's hub v2.1 | VERSÃO ULTRA-COMPATÍVEL ]] --
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+-- Se já existir um hub, ele apaga o antigo para não bugar
+if game.CoreGui:FindFirstChild("MT_Hub_Raiz") then
+    game.CoreGui.MT_Hub_Raiz:Destroy()
+end
 
--- Notificação Inicial (Pra você saber que carregou)
-OrionLib:MakeNotification({
-    Name = "mt's hub v2.0",
-    Content = "Carregando sistema de segurança...",
-    Image = "rbxassetid://4483345998",
-    Time = 5
-})
+-- CRIAÇÃO DA INTERFACE MANUAL
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local SpeedBtn = Instance.new("TextButton")
+local JumpBtn = Instance.new("TextButton")
+local CloseBtn = Instance.new("TextButton")
 
-local Window = OrionLib:MakeWindow({Name = "mt's hub v2.0 | Matheus078881", HidePremium = false, SaveConfig = true, ConfigFolder = "MTHub"})
+ScreenGui.Name = "MT_Hub_Raiz"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
 
--- ABA DE LOGIN
-local TabLogin = Window:MakeTab({ Name = "Chave", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+-- Fundo do Menu
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 2
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 250)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Você pode arrastar na tela!
 
-TabLogin:AddTextbox({
-    Name = "Insira sua Key",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(Value)
-        if Value == "MATHEUS-ADMIN-2026" or Value == "MATHEUS-ADIMIN-2026" then
-            OrionLib:MakeNotification({
-                Name = "Acesso Liberado!",
-                Content = "Bem-vindo de volta, Matheus!",
-                Image = "rbxassetid://4483345998",
-                Time = 5
-            })
-        end
-    end	  
-})
+-- Título
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "mt's hub v2.1"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 
--- ABA DE MOVIMENTAÇÃO
-local TabMov = Window:MakeTab({ Name = "Movimentação", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+-- Botão de Velocidade
+SpeedBtn.Parent = MainFrame
+SpeedBtn.Position = UDim2.new(0.1, 0, 0.2, 0)
+SpeedBtn.Size = UDim2.new(0.8, 0, 0, 40)
+SpeedBtn.Text = "Velocidade (100)"
+SpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-TabMov:AddSlider({
-    Name = "Velocidade",
-    Min = 16,
-    Max = 500,
-    Default = 16,
-    Color = Color3.fromRGB(255,255,255),
-    Increment = 1,
-    ValueName = "Speed",
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-    end    
-})
+SpeedBtn.MouseButton1Click:Connect(function()
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
+    print("Velocidade Ativada!")
+end)
 
-TabMov:AddSlider({
-    Name = "Pulo",
-    Min = 50,
-    Max = 500,
-    Default = 50,
-    Color = Color3.fromRGB(255,255,255),
-    Increment = 1,
-    ValueName = "Jump",
-    Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-    end    
-})
+-- Botão de Pulo
+JumpBtn.Parent = MainFrame
+JumpBtn.Position = UDim2.new(0.1, 0, 0.45, 0)
+JumpBtn.Size = UDim2.new(0.8, 0, 0, 40)
+JumpBtn.Text = "Pulo (150)"
+JumpBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+JumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- ABA MISC
-local TabMisc = Window:MakeTab({ Name = "Misc", Icon = "rbxassetid://4483345998", PremiumOnly = false })
+JumpBtn.MouseButton1Click:Connect(function()
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = 150
+end)
 
-TabMisc:AddToggle({
-    Name = "Anti-AFK",
-    Default = false,
-    Callback = function(Value)
-        local vu = game:GetService("VirtualUser")
-        game:GetService("Players").LocalPlayer.Idled:connect(function()
-            if Value then
-                vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-                wait(1)
-                vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            end
-        end)
-    end    
-})
+-- Botão de Fechar
+CloseBtn.Parent = MainFrame
+CloseBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
+CloseBtn.Size = UDim2.new(0.8, 0, 0, 40)
+CloseBtn.Text = "Fechar Hub"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-OrionLib:Init() -- Finaliza a criação do Hub
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
